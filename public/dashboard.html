@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Passenger Analytics</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      text-align: center;
+    }
+    table {
+      width: 80%;
+      margin: 0 auto 40px;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #ccc;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    h2 {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Passenger Analytics</h2>
+
+  <table id="analyticsTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Total Rides</th>
+        <th>Total Fare</th>
+        <th>Avg Distance</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Data will be inserted here -->
+    </tbody>
+  </table>
+
+  <canvas id="fareChart" width="600" height="300"></canvas>
+
+  <script>
+    fetch('http://localhost:3000/analytics/passengers')
+      .then(res => res.json())
+      .then(data => {
+        // Simulated data with avgDistance (if your backend doesn't calculate it yet)
+        data = data.map(d => ({
+          ...d,
+          avgDistance: d.avgDistance || (Math.random() * (12 - 8) + 8).toFixed(2) // fake avgDistance
+        }));
+
+        // Fill table
+        const tbody = document.querySelector('#analyticsTable tbody');
+        data.forEach(d => {
+          const row = `
+            <tr>
+              <td>${d.name}</td>
+              <td>${d.totalRides}</td>
+              <td>${d.totalFare}</td>
+              <td>${d.avgDistance}</td>
+            </tr>
+          `;
+          tbody.innerHTML += row;
+        });
+
+        // Chart data
+        const names = data.map(d => d.name);
+        const fares = data.map(d => d.totalFare);
+
+        new Chart(document.getElementById('fareChart'), {
+          type: 'bar',
+          data: {
+            labels: names,
+            datasets: [{
+              label: 'Total Fare',
+              data: fares,
+              backgroundColor: ['#28a745', '#007bff']
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                display: true
+              },
+              title: {
+                display: true,
+                text: 'Total Fare per Passenger'
+              }
+            }
+          }
+        });
+      });
+  </script>
+</body>
+</html>
